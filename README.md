@@ -5,9 +5,15 @@
 [![Docker smoke test](https://github.com/atgsolution/store-mgmt-community/actions/workflows/docker-smoke.yml/badge.svg)](https://github.com/atgsolution/store-mgmt-community/actions/workflows/docker-smoke.yml)
 [![License: Apache-2.0](https://img.shields.io/badge/License-Apache--2.0-blue.svg)](LICENSE)
 
+![Store MGMT Community Edition — self-hosted POS và in bill 80 mm](docs/assets/social-preview.jpg)
+
+[Bản phát hành mới nhất](https://github.com/atgsolution/store-mgmt-community/releases/latest) · [Cài đặt](#cài-đặt-lần-đầu-trên-linux) · [Lộ trình](ROADMAP.md) · [Thảo luận](https://github.com/atgsolution/store-mgmt-community/discussions)
+
 **Nền tảng bán hàng và quản lý cửa hàng self-hosted.**
 
 Store MGMT Community Edition là phiên bản miễn phí dành cho cộng đồng, phù hợp với cửa hàng cần quản lý bán hàng và dữ liệu tập trung trên hệ thống riêng.
+
+Nếu Store MGMT hữu ích với bạn, hãy [Star repo](https://github.com/atgsolution/store-mgmt-community) để theo dõi phiên bản mới và giúp dự án tiếp cận thêm người dùng.
 
 ## Chức năng
 
@@ -148,6 +154,7 @@ Phiên bản Cộng đồng hiện phục vụ một cửa hàng trên mỗi b�
 
 ## Cộng đồng và giấy phép
 
+- [Lộ trình phát triển](ROADMAP.md)
 - [Hướng dẫn đóng góp](CONTRIBUTING.md)
 - [Chính sách bảo mật](SECURITY.md)
 - [Quy tắc cộng đồng](CODE_OF_CONDUCT.md)
