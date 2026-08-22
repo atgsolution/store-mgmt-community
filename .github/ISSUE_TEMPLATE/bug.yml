@@ -1,0 +1,54 @@
+name: Bug report / Báo lỗi
+description: Report a reproducible product defect / Báo lỗi có thể tái hiện
+title: "[Bug] "
+labels:
+  - bug
+body:
+  - type: markdown
+    attributes:
+      value: Do not include credentials or customer data. Security vulnerabilities must use private vulnerability reporting.
+  - type: input
+    id: version
+    attributes:
+      label: Version / Phiên bản
+      placeholder: v1.0.0 or commit SHA
+    validations:
+      required: true
+  - type: dropdown
+    id: deployment
+    attributes:
+      label: Deployment / Môi trường
+      options:
+        - Docker Compose
+        - Local development
+        - Other
+    validations:
+      required: true
+  - type: textarea
+    id: problem
+    attributes:
+      label: Problem / Vấn đề
+      description: Describe the observed and expected behavior / Mô tả kết quả thực tế và mong đợi
+    validations:
+      required: true
+  - type: textarea
+    id: reproduction
+    attributes:
+      label: Reproduction / Cách tái hiện
+      placeholder: "1. ...\n2. ...\n3. ..."
+    validations:
+      required: true
+  - type: textarea
+    id: logs
+    attributes:
+      label: Relevant logs / Log liên quan
+      render: shell
+  - type: checkboxes
+    id: checks
+    attributes:
+      label: Checklist
+      options:
+        - label: I removed credentials and customer data / Tôi đã xóa thông tin đăng nhập và dữ liệu khách hàng
+          required: true
+        - label: I searched existing issues / Tôi đã kiểm tra các issue hiện có
+          required: true

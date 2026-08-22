@@ -1,0 +1,119 @@
+name: store-mgmt
+
+x-api-environment: &api-environment
+  NODE_ENV: "${NODE_ENV:-production}"
+  PORT: "3000"
+  HOT_DATABASE_URL: "postgres://${DB_USER:-store_mgmt}:${HOT_DB_PASSWORD:?Set HOT_DB_PASSWORD in .env}@hot-db:5432/${HOT_DB_NAME:-store_mgmt_hot}"
+  ARCHIVE_DATABASE_URL: "postgres://${DB_USER:-store_mgmt}:${ARCHIVE_DB_PASSWORD:?Set ARCHIVE_DB_PASSWORD in .env}@archive-db:5432/${ARCHIVE_DB_NAME:-store_mgmt_archive}"
+  STORE_CODE: "${STORE_CODE:-default}"
+  STORE_ID: "${STORE_ID:-00000000-0000-0000-0000-000000000001}"
+  STORE_NAME: "${STORE_NAME:-Store A}"
+  STORE_ADDRESS: "${STORE_ADDRESS:-HCM City}"
+  STORE_PHONE: "${STORE_PHONE:-123 123}"
+  STORE_FOOTER: "${STORE_FOOTER:-Thank you}"
+  STAFF_PASSWORD_HASH: "${STAFF_PASSWORD_HASH:-}"
+  ADMIN_PASSWORD_HASH: "${ADMIN_PASSWORD_HASH:-}"
+  SESSION_TTL_HOURS: "${SESSION_TTL_HOURS:-168}"
+  COOKIE_SECURE: "${COOKIE_SECURE:-false}"
+  COLD_ARCHIVE_DIR: "/var/lib/store-mgmt/cold-archive"
+  COLD_ARCHIVE_DELETE_SOURCE: "${COLD_ARCHIVE_DELETE_SOURCE:-false}"
+
+services:
+  hot-db:
+    image: postgres:17-alpine
+    environment:
+      POSTGRES_DB: "${HOT_DB_NAME:-store_mgmt_hot}"
+      POSTGRES_USER: "${DB_USER:-store_mgmt}"
+      POSTGRES_PASSWORD: "${HOT_DB_PASSWORD:?Set HOT_DB_PASSWORD in .env}"
+    volumes:
+      - hot-db-data:/var/lib/postgresql/data
+    ports:
+      - "${HOT_DB_PORT:-55432}:5432"
+    healthcheck:
+      test: ["CMD-SHELL", "pg_isready -U ${DB_USER:-store_mgmt} -d ${HOT_DB_NAME:-store_mgmt_hot}"]
+      interval: 5s
+      timeout: 5s
+      retries: 15
+    restart: unless-stopped
+
+  archive-db:
+    image: postgres:17-alpine
+    environment:
+      POSTGRES_DB: "${ARCHIVE_DB_NAME:-store_mgmt_archive}"
+      POSTGRES_USER: "${DB_USER:-store_mgmt}"
+      POSTGRES_PASSWORD: "${ARCHIVE_DB_PASSWORD:?Set ARCHIVE_DB_PASSWORD in .env}"
+    volumes:
+      - archive-db-data:/var/lib/postgresql/data
+    ports:
+      - "${ARCHIVE_DB_PORT:-55433}:5432"
+    healthcheck:
+      test: ["CMD-SHELL", "pg_isready -U ${DB_USER:-store_mgmt} -d ${ARCHIVE_DB_NAME:-store_mgmt_archive}"]
+      interval: 5s
+      timeout: 5s
+      retries: 15
+    restart: unless-stopped
+
+  migrate:
+    build:
+      context: .
+      dockerfile: Dockerfile
+      target: api
+    environment: *api-environment
+    command: ["node", "server/migrate.mjs"]
+    depends_on:
+      hot-db:
+        condition: service_healthy
+      archive-db:
+        condition: service_healthy
+    restart: "no"
+
+  api:
+    build:
+      context: .
+      dockerfile: Dockerfile
+      target: api
+    environment: *api-environment
+    depends_on:
+      migrate:
+        condition: service_completed_successfully
+    healthcheck:
+      test: ["CMD", "wget", "-qO-", "http://127.0.0.1:3000/api/healthz"]
+      interval: 10s
+      timeout: 5s
+      retries: 10
+    volumes:
+      - cold-archive:/var/lib/store-mgmt/cold-archive
+    restart: unless-stopped
+
+  archive-worker:
+    build:
+      context: .
+      dockerfile: Dockerfile
+      target: api
+    environment: *api-environment
+    command: ["node", "server/archive-worker.mjs"]
+    depends_on:
+      migrate:
+        condition: service_completed_successfully
+    volumes:
+      - cold-archive:/var/lib/store-mgmt/cold-archive
+    restart: unless-stopped
+
+  store-mgmt:
+    build:
+      context: .
+      dockerfile: Dockerfile
+      target: frontend
+      args:
+        VITE_API_ENABLED: "${VITE_API_ENABLED:-true}"
+    depends_on:
+      api:
+        condition: service_healthy
+    ports:
+      - "${APP_PORT:-6086}:80"
+    restart: unless-stopped
+
+volumes:
+  hot-db-data:
+  archive-db-data:
+  cold-archive:

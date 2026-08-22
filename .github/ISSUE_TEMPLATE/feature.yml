@@ -1,0 +1,36 @@
+name: Feature request / Đề xuất tính năng
+description: Propose a focused product improvement / Đề xuất cải tiến cụ thể
+title: "[Feature] "
+labels:
+  - enhancement
+body:
+  - type: textarea
+    id: problem
+    attributes:
+      label: Problem / Nhu cầu
+      description: What user or operational problem should be solved? / Cần giải quyết vấn đề sử dụng hoặc vận hành nào?
+    validations:
+      required: true
+  - type: textarea
+    id: proposal
+    attributes:
+      label: Proposed solution / Giải pháp đề xuất
+    validations:
+      required: true
+  - type: textarea
+    id: alternatives
+    attributes:
+      label: Alternatives / Phương án khác
+  - type: dropdown
+    id: scope
+    attributes:
+      label: Scope / Phạm vi
+      options:
+        - Sales workflow / Bán hàng
+        - Menu and catalog / Món và danh mục
+        - Reporting / Báo cáo
+        - Printing / In bill
+        - Deployment and operations / Triển khai và vận hành
+        - Other / Khác
+    validations:
+      required: true

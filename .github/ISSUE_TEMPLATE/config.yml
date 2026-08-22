@@ -1,0 +1,8 @@
+blank_issues_enabled: false
+contact_links:
+  - name: Security report / Báo cáo bảo mật
+    url: https://github.com/atgsolution/store-mgmt-community/security/advisories/new
+    about: Report vulnerabilities privately / Báo cáo lỗ hổng qua kênh riêng
+  - name: Support and questions / Hỗ trợ và câu hỏi
+    url: https://github.com/atgsolution/store-mgmt-community/discussions
+    about: Ask usage and deployment questions / Hỏi về sử dụng và triển khai

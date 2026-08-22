@@ -1,0 +1,32 @@
+{
+  "name": "store-mgmt",
+  "private": true,
+  "version": "1.0.0",
+  "license": "Apache-2.0",
+  "type": "module",
+  "scripts": {
+    "dev": "vite",
+    "server:dev": "node --env-file-if-exists=.env --watch server/index.mjs",
+    "server:start": "node --env-file-if-exists=.env server/index.mjs",
+    "db:migrate": "node --env-file-if-exists=.env server/migrate.mjs",
+    "db:archive": "node --env-file-if-exists=.env server/archive.mjs",
+    "db:compact": "node --env-file-if-exists=.env server/compact.mjs",
+    "db:worker": "node --env-file-if-exists=.env server/archive-worker.mjs",
+    "build": "tsc -b && vite build",
+    "preview": "vite preview",
+    "typecheck": "tsc --noEmit"
+  },
+  "dependencies": {
+    "express": "^5.2.1",
+    "pg": "^8.23.0",
+    "react": "^19.1.1",
+    "react-dom": "^19.1.1"
+  },
+  "devDependencies": {
+    "@types/react": "^19.1.10",
+    "@types/react-dom": "^19.1.7",
+    "@vitejs/plugin-react": "^5.0.2",
+    "typescript": "^5.9.2",
+    "vite": "^7.1.2"
+  }
+}
