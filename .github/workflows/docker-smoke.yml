@@ -36,6 +36,7 @@ jobs:
         shell: bash
         run: |
           bash -n scripts/setup-linux.sh
+          bash -n scripts/reset-password.sh
           password_hash="$(printf '%s' 'SetupCheck123!' | node scripts/hash-password.mjs)"
           [[ "$password_hash" =~ ^scrypt\$[0-9a-f]{32}\$[0-9a-f]{128}$ ]]
 
@@ -80,6 +81,18 @@ jobs:
 
       - name: Test API roles, orders, Paid and audit
         run: node scripts/docker-smoke.mjs
+
+      - name: Test host password recovery
+        shell: bash
+        run: |
+          reset_password='ResetCheck123!'
+          echo "::add-mask::$reset_password"
+          printf '%s\n%s\n' "$reset_password" "$reset_password" | bash scripts/reset-password.sh admin
+          response="$(curl --fail --silent \
+            -H 'Content-Type: application/json' \
+            --data "{\"username\":\"admin\",\"password\":\"$reset_password\"}" \
+            http://127.0.0.1:6086/api/auth/login)"
+          grep -q '"username":"admin"' <<<"$response"
 
       - name: Seed a 61-day order in hot DB
         shell: bash
