@@ -1,4 +1,4 @@
-FROM node:22-alpine AS build
+FROM node:26-alpine AS build
 
 WORKDIR /app
 
@@ -24,7 +24,7 @@ HEALTHCHECK --interval=30s --timeout=3s --start-period=5s --retries=3 \
 
 CMD ["nginx", "-g", "daemon off;"]
 
-FROM node:22-alpine AS api
+FROM node:26-alpine AS api
 
 WORKDIR /app
 ENV NODE_ENV=production
