@@ -30,30 +30,85 @@ Store MGMT Community Edition là phiên bản miễn phí dành cho cộng đồ
 | Triển khai | Docker Compose gồm frontend, API, archive worker và PostgreSQL |
 | Máy in | Hộp thoại in của trình duyệt hoặc WebUSB ESC/POS |
 
-## Cài đặt trên Linux
+## Giao diện
+
+| Đăng nhập và phân quyền | Xem trước bill 80 mm |
+|---|---|
+| ![Màn hình đăng nhập Store MGMT](docs/assets/screenshots/login.png) | ![Màn hình xem trước bill Store MGMT](docs/assets/screenshots/receipt-preview.png) |
+| Cài đặt cửa hàng | Quản lý loại món và tag |
+| ![Màn hình cài đặt Store MGMT](docs/assets/screenshots/settings.png) | ![Màn hình quản lý loại món và tag](docs/assets/screenshots/categories-and-tags.png) |
+
+## Cài đặt lần đầu trên Linux
 
 Yêu cầu Docker Engine, Docker Compose v2, Git và OpenSSL.
+
+### 1. Tải mã nguồn
 
 ```bash
 git clone https://github.com/atgsolution/store-mgmt-community.git
 cd store-mgmt-community
-bash scripts/setup-linux.sh
+```
 
+### 2. Tạo mật khẩu lần đầu
+
+```bash
+bash scripts/setup-linux.sh
+```
+
+Script sẽ lần lượt yêu cầu mật khẩu cho hai tài khoản cố định:
+
+- `admin`: quản trị hệ thống, menu, dữ liệu và tài khoản.
+- `staff`: bán hàng, quản lý đơn và in bill.
+
+Khi nhập mật khẩu, terminal **không hiện ký tự hoặc dấu `*`**. Đây là cơ chế bảo vệ bình thường; hãy nhập mật khẩu rồi nhấn Enter. Mật khẩu phải dài ít nhất 8 ký tự, có chữ cái, chữ số, ký tự đặc biệt và không chứa khoảng trắng.
+
+Không có mật khẩu mặc định công khai. Script tạo mật khẩu database ngẫu nhiên và chỉ ghi hash scrypt của mật khẩu tài khoản vào `.env`.
+
+### 3. Khởi động ứng dụng
+
+```bash
 docker compose config --quiet
 docker compose up -d --build
 docker compose ps
 ```
 
-Ứng dụng mặc định chạy tại `http://<địa-chỉ-máy-chủ>:6086`. Điểm kiểm tra trạng thái là `/healthz`.
+### 4. Đăng nhập
 
-Tài khoản khởi tạo:
+Mở `http://localhost:6086` trên máy chủ hoặc `http://<địa-chỉ-máy-chủ>:6086` từ thiết bị cùng mạng.
 
 | Vai trò | Tài khoản | Mật khẩu |
 |---|---|---|
-| Quản trị viên | `admin` | Chọn trong lúc setup |
-| Nhân viên | `staff` | Chọn trong lúc setup |
+| Quản trị viên | `admin` | Mật khẩu Admin đã chọn ở bước 2 |
+| Nhân viên | `staff` | Mật khẩu Staff đã chọn ở bước 2 |
 
-Script setup tạo mật khẩu database ngẫu nhiên và chỉ lưu hash scrypt của mật khẩu tài khoản.
+Điểm kiểm tra trạng thái của ứng dụng là `/healthz`.
+
+## Đổi mật khẩu
+
+Chỉ tài khoản `admin` có quyền đổi mật khẩu:
+
+1. Đăng nhập bằng `admin`.
+2. Mở tab **Người dùng**.
+3. Nhập và xác nhận mật khẩu mới trong thẻ `admin` hoặc `staff`.
+4. Chọn **Đổi mật khẩu**.
+
+Khi đổi mật khẩu `staff`, mọi phiên Staff đang mở sẽ bị đăng xuất. Khi Admin đổi mật khẩu của chính mình, phiên hiện tại được giữ lại và các phiên Admin còn lại bị thu hồi.
+
+## Quên mật khẩu
+
+Nếu không còn đăng nhập được bằng Admin, chạy lệnh sau tại thư mục dự án trên máy chủ:
+
+```bash
+bash scripts/reset-password.sh admin
+```
+
+Để đặt lại mật khẩu Staff:
+
+```bash
+bash scripts/reset-password.sh staff
+```
+
+Các container phải đang chạy. Lệnh chỉ cập nhật mật khẩu của tài khoản được chọn, thu hồi các phiên cũ và ghi audit log; không xóa đơn hàng, menu hoặc cấu hình cửa hàng.
 
 ## Cập nhật
 

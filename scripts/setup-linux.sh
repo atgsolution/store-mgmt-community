@@ -8,37 +8,38 @@ env_template="$project_dir/.env.example"
 
 for command_name in docker openssl sed; do
   if ! command -v "$command_name" >/dev/null 2>&1; then
-    echo "Missing required command: $command_name" >&2
+    echo "Missing required command / Thiếu lệnh bắt buộc: $command_name" >&2
     exit 1
   fi
 done
 
 if [[ -e "$env_file" ]]; then
-  echo ".env already exists; setup stopped without changing it." >&2
+  echo ".env already exists; setup stopped without changing it. / File .env đã tồn tại; setup dừng và không thay đổi file." >&2
   exit 1
 fi
 
 read_password() {
   local label="$1"
+  local confirmation_label="$2"
   local first=''
   local second=''
 
   while true; do
     read -r -s -p "$label: " first
     echo
-    read -r -s -p "Confirm $label: " second
+    read -r -s -p "$confirmation_label: " second
     echo
 
     if [[ "$first" != "$second" ]]; then
-      echo "Passwords do not match."
+      echo "Passwords do not match. / Mật khẩu xác nhận không khớp."
       continue
     fi
-    if (( ${#first} < 8 )); then
-      echo "Use at least 8 characters."
+    if (( ${#first} < 8 || ${#first} > 128 )); then
+      echo "Use 8 to 128 characters. / Mật khẩu phải có từ 8 đến 128 ký tự."
       continue
     fi
-    if [[ "$first" =~ [[:space:]] ]] || [[ ! "$first" =~ [[:alpha:]] ]] || [[ ! "$first" =~ [[:digit:]] ]] || [[ ! "$first" =~ [^[:alnum:]] ]]; then
-      echo "Use letters, numbers, and symbols without spaces."
+    if [[ "$first" =~ [[:space:]] ]] || [[ ! "$first" =~ [A-Za-z] ]] || [[ ! "$first" =~ [0-9] ]] || [[ ! "$first" =~ [^A-Za-z0-9] ]]; then
+      echo "Use letters, numbers, and symbols without spaces. / Dùng chữ cái, chữ số và ký tự đặc biệt, không có khoảng trắng."
       continue
     fi
 
@@ -61,10 +62,12 @@ replace_env() {
   sed -i "s|^${key}=.*|${key}=${value}|" "$env_file"
 }
 
-echo "Create the initial Store MGMT accounts. Passwords are not stored as plaintext."
-read_password "Admin password"
+echo "Store MGMT first-time setup / Cài đặt Store MGMT lần đầu"
+echo "Password input is hidden; no characters or * will appear."
+echo "Khi nhập mật khẩu, terminal sẽ không hiện ký tự hoặc dấu *."
+read_password "Admin password / Mật khẩu Admin" "Confirm Admin password / Nhập lại mật khẩu Admin"
 admin_password="$REPLY"
-read_password "Staff password"
+read_password "Staff password / Mật khẩu Staff" "Confirm Staff password / Nhập lại mật khẩu Staff"
 staff_password="$REPLY"
 
 admin_hash="$(hash_password "$admin_password")"
@@ -82,6 +85,7 @@ replace_env ADMIN_PASSWORD_HASH "'$admin_hash'"
 unset admin_hash staff_hash
 
 echo "Created .env with unique database secrets and scrypt password hashes."
-echo "Review store information in .env, then run:"
+echo "Đã tạo .env với mật khẩu database riêng và hash scrypt cho tài khoản."
+echo "Review store information in .env, then run / Kiểm tra thông tin cửa hàng trong .env, sau đó chạy:"
 echo "  docker compose config --quiet"
 echo "  docker compose up -d --build"

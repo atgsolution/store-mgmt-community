@@ -30,30 +30,85 @@ Store MGMT Community Edition is a free community release for stores that require
 | Deployment | Docker Compose with separate web, API, archive worker, and database services |
 | Printing | Browser print dialog or direct WebUSB ESC/POS |
 
-## Linux installation
+## Product tour
+
+| Sign-in and access control | 80 mm receipt preview |
+|---|---|
+| ![Store MGMT sign-in screen](docs/assets/screenshots/login.png) | ![Store MGMT receipt preview](docs/assets/screenshots/receipt-preview.png) |
+| Store settings | Category and tag management |
+| ![Store MGMT settings screen](docs/assets/screenshots/settings.png) | ![Store MGMT category and tag management](docs/assets/screenshots/categories-and-tags.png) |
+
+## First-time Linux installation
 
 Requires Docker Engine, Docker Compose v2, Git, and OpenSSL.
+
+### 1. Download the source
 
 ```bash
 git clone https://github.com/atgsolution/store-mgmt-community.git
 cd store-mgmt-community
-bash scripts/setup-linux.sh
+```
 
+### 2. Create the initial passwords
+
+```bash
+bash scripts/setup-linux.sh
+```
+
+The script prompts for passwords for two fixed accounts:
+
+- `admin`: system, catalog, data, and account administration.
+- `staff`: sales, order management, and receipt printing.
+
+The terminal intentionally displays **no characters or `*` symbols** while a password is entered. Type the password and press Enter. Each password must contain at least eight characters, including a letter, a number, and a special character, with no spaces.
+
+There are no public default passwords. The script generates unique database secrets and writes only scrypt account-password hashes to `.env`.
+
+### 3. Start the application
+
+```bash
 docker compose config --quiet
 docker compose up -d --build
 docker compose ps
 ```
 
-The application is served at `http://<server-address>:6086` by default. The health endpoint is `/healthz`.
+### 4. Sign in
 
-Bootstrap accounts:
+Open `http://localhost:6086` on the server or `http://<server-address>:6086` from another device on the same network.
 
 | Role | Username | Password |
 |---|---|---|
-| Administrator | `admin` | Chosen during setup |
-| Staff | `staff` | Chosen during setup |
+| Administrator | `admin` | The Admin password selected in step 2 |
+| Staff | `staff` | The Staff password selected in step 2 |
 
-The setup script generates unique database passwords and stores only scrypt hashes for account passwords.
+The application health endpoint is `/healthz`.
+
+## Change a password
+
+Only `admin` can change account passwords:
+
+1. Sign in as `admin`.
+2. Open the **Users** tab.
+3. Enter and confirm the new password in the `admin` or `staff` card.
+4. Select **Change password**.
+
+Changing the Staff password revokes all active Staff sessions. When an Admin changes their own password, the current session remains active and all other Admin sessions are revoked.
+
+## Recover a forgotten password
+
+If no Admin session is available, run the following command from the project directory on the server:
+
+```bash
+bash scripts/reset-password.sh admin
+```
+
+To reset the Staff password:
+
+```bash
+bash scripts/reset-password.sh staff
+```
+
+The containers must be running. The command updates only the selected account, revokes its existing sessions, and records an audit entry; it does not remove orders, catalog data, or store settings.
 
 ## Upgrades
 
