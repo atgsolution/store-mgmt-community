@@ -5,7 +5,9 @@
 [![Docker smoke test](https://github.com/atgsolution/store-mgmt-community/actions/workflows/docker-smoke.yml/badge.svg)](https://github.com/atgsolution/store-mgmt-community/actions/workflows/docker-smoke.yml)
 [![License: Apache-2.0](https://img.shields.io/badge/License-Apache--2.0-blue.svg)](LICENSE)
 
-![Store MGMT Community Edition — self-hosted POS và in bill 80 mm](docs/assets/social-preview.jpg)
+[![Xem video hướng dẫn Store MGMT Community Edition](docs/assets/screenshots/sales-overview.png)](https://github.com/atgsolution/store-mgmt-community/releases/download/v1.0.1/store-mgmt-guide.mp4)
+
+**[▶ Xem video hướng dẫn Store MGMT](https://github.com/atgsolution/store-mgmt-community/releases/download/v1.0.1/store-mgmt-guide.mp4)** · MP4, 6 MB
 
 [Bản phát hành mới nhất](https://github.com/atgsolution/store-mgmt-community/releases/latest) · [Cài đặt](#cài-đặt-lần-đầu-trên-linux) · [Lộ trình](ROADMAP.md) · [Thảo luận](https://github.com/atgsolution/store-mgmt-community/discussions)
 
@@ -38,11 +40,13 @@ Nếu Store MGMT hữu ích với bạn, hãy [Star repo](https://github.com/atg
 
 ## Giao diện
 
-| Đăng nhập và phân quyền | Xem trước bill 80 mm |
+| Bán hàng và quản lý đơn | Xem trước bill 80 mm |
 |---|---|
-| ![Màn hình đăng nhập Store MGMT](docs/assets/screenshots/login.png) | ![Màn hình xem trước bill Store MGMT](docs/assets/screenshots/receipt-preview.png) |
-| Cài đặt cửa hàng | Quản lý loại món và tag |
-| ![Màn hình cài đặt Store MGMT](docs/assets/screenshots/settings.png) | ![Màn hình quản lý loại món và tag](docs/assets/screenshots/categories-and-tags.png) |
+| ![Màn hình bán hàng Store MGMT](docs/assets/screenshots/sales-overview.png) | ![Màn hình xem trước bill Store MGMT](docs/assets/screenshots/receipt-preview-live.png) |
+| Quản lý món và giá | Quản lý loại món và tag |
+| ![Màn hình quản lý món và giá Store MGMT](docs/assets/screenshots/menu-and-prices.png) | ![Màn hình quản lý loại món và tag Store MGMT](docs/assets/screenshots/categories-and-tags-live.png) |
+| Lịch sử đơn và in lại bill | Phân tích doanh thu |
+| ![Màn hình lịch sử đơn Store MGMT](docs/assets/screenshots/order-history.png) | ![Màn hình phân tích doanh thu Store MGMT](docs/assets/screenshots/revenue-analytics.png) |
 
 ## Cài đặt lần đầu trên Linux
 

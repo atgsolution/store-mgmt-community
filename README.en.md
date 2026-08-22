@@ -5,7 +5,9 @@
 [![Docker smoke test](https://github.com/atgsolution/store-mgmt-community/actions/workflows/docker-smoke.yml/badge.svg)](https://github.com/atgsolution/store-mgmt-community/actions/workflows/docker-smoke.yml)
 [![License: Apache-2.0](https://img.shields.io/badge/License-Apache--2.0-blue.svg)](LICENSE)
 
-![Store MGMT Community Edition — self-hosted POS with 80 mm receipt printing](docs/assets/social-preview.jpg)
+[![Watch the Store MGMT Community Edition guide](docs/assets/screenshots/sales-overview.png)](https://github.com/atgsolution/store-mgmt-community/releases/download/v1.0.1/store-mgmt-guide.mp4)
+
+**[▶ Watch the Store MGMT guide](https://github.com/atgsolution/store-mgmt-community/releases/download/v1.0.1/store-mgmt-guide.mp4)** · MP4, 6 MB
 
 [Latest release](https://github.com/atgsolution/store-mgmt-community/releases/latest) · [Install](#first-time-linux-installation) · [Roadmap](ROADMAP.md) · [Discussions](https://github.com/atgsolution/store-mgmt-community/discussions)
 
@@ -38,11 +40,13 @@ If Store MGMT is useful to you, [Star the repository](https://github.com/atgsolu
 
 ## Product tour
 
-| Sign-in and access control | 80 mm receipt preview |
+| Sales and order management | 80 mm receipt preview |
 |---|---|
-| ![Store MGMT sign-in screen](docs/assets/screenshots/login.png) | ![Store MGMT receipt preview](docs/assets/screenshots/receipt-preview.png) |
-| Store settings | Category and tag management |
-| ![Store MGMT settings screen](docs/assets/screenshots/settings.png) | ![Store MGMT category and tag management](docs/assets/screenshots/categories-and-tags.png) |
+| ![Store MGMT sales screen](docs/assets/screenshots/sales-overview.png) | ![Store MGMT receipt preview](docs/assets/screenshots/receipt-preview-live.png) |
+| Menu and pricing | Category and tag management |
+| ![Store MGMT menu and pricing screen](docs/assets/screenshots/menu-and-prices.png) | ![Store MGMT category and tag management](docs/assets/screenshots/categories-and-tags-live.png) |
+| Order history and receipt reprinting | Revenue analytics |
+| ![Store MGMT order history screen](docs/assets/screenshots/order-history.png) | ![Store MGMT revenue analytics screen](docs/assets/screenshots/revenue-analytics.png) |
 
 ## First-time Linux installation
 

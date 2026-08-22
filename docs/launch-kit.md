@@ -11,9 +11,9 @@ Maintainer-facing copy and assets for the public Community Edition launch.
 
 ## Assets
 
-- Social preview and README hero: [`docs/assets/social-preview.jpg`](assets/social-preview.jpg), 1280×640.
+- Social preview: [`docs/assets/social-preview.jpg`](assets/social-preview.jpg), 1280×640.
 - Product screenshots: [`docs/assets/screenshots/`](assets/screenshots/).
-- Demo video: attach the maintainer-produced video directly to the launch post or host it at a stable public URL.
+- Demo video: [`store-mgmt-guide.mp4`](https://github.com/atgsolution/store-mgmt-community/releases/download/v1.0.1/store-mgmt-guide.mp4), published as a `v1.0.1` release asset.
 
 ## Positioning
 
