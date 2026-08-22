@@ -5,9 +5,15 @@
 [![Docker smoke test](https://github.com/atgsolution/store-mgmt-community/actions/workflows/docker-smoke.yml/badge.svg)](https://github.com/atgsolution/store-mgmt-community/actions/workflows/docker-smoke.yml)
 [![License: Apache-2.0](https://img.shields.io/badge/License-Apache--2.0-blue.svg)](LICENSE)
 
+![Store MGMT Community Edition — self-hosted POS with 80 mm receipt printing](docs/assets/social-preview.jpg)
+
+[Latest release](https://github.com/atgsolution/store-mgmt-community/releases/latest) · [Install](#first-time-linux-installation) · [Roadmap](ROADMAP.md) · [Discussions](https://github.com/atgsolution/store-mgmt-community/discussions)
+
 **A self-hosted point-of-sale and store operations platform.**
 
 Store MGMT Community Edition is a free community release for stores that require centralized sales and operational data on self-managed infrastructure.
+
+If Store MGMT is useful to you, [Star the repository](https://github.com/atgsolution/store-mgmt-community) to follow releases and help other users discover the project.
 
 ## Capabilities
 
@@ -150,6 +156,7 @@ The Community Edition supports one store per deployment. Multi-store operation, 
 
 ## Community and license
 
+- [Project roadmap](ROADMAP.md)
 - [Contributing guide](CONTRIBUTING.md)
 - [Security policy](SECURITY.md)
 - [Code of conduct](CODE_OF_CONDUCT.md)
