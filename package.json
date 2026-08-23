@@ -12,6 +12,7 @@
     "db:archive": "node --env-file-if-exists=.env server/archive.mjs",
     "db:compact": "node --env-file-if-exists=.env server/compact.mjs",
     "db:worker": "node --env-file-if-exists=.env server/archive-worker.mjs",
+    "test": "node --no-warnings --experimental-strip-types --test tests/print-policy.test.ts",
     "build": "tsc -b && vite build",
     "preview": "vite preview",
     "typecheck": "tsc --noEmit"

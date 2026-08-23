@@ -42,6 +42,7 @@ jobs:
 
       - name: Typecheck and frontend build
         run: |
+          npm test
           npm run typecheck
           npm run build
 

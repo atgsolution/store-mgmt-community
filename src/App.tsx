@@ -1,4 +1,6 @@
 import { useEffect, useMemo, useRef, useState, type ChangeEvent, type CSSProperties } from 'react'
+import { flushSync } from 'react-dom'
+import { executePersistedPrint } from './printPolicy'
 
 type View = 'ban hang' | 'lich su' | 'mon gia' | 'doanh thu' | 'user'
 type UserRole = 'staff' | 'admin'
@@ -6,6 +8,10 @@ type OrderStatus = 'da luu' | 'da thanh toan'
 type PaymentMethod = '' | 'TM' | 'CK'
 type ThemeMode = 'dark' | 'light'
 type Language = 'vi' | 'en'
+
+type SaveOrderOptions = {
+  keepSavedPreview?: boolean
+}
 
 type AuthUser = {
   username: string
@@ -1105,6 +1111,7 @@ export default function App() {
   const [usbPrinter, setUsbPrinter] = useState<UsbDeviceLike | null>(null)
   const [usbEndpointNumber, setUsbEndpointNumber] = useState<number | null>(null)
   const [isPrinting, setIsPrinting] = useState(false)
+  const [chromePrintOrder, setChromePrintOrder] = useState<SavedOrder | null>(null)
   const importInputRef = useRef<HTMLInputElement>(null)
   const openingCashInputRef = useRef<HTMLInputElement>(null)
   const isAdmin = authUser?.role === 'admin'
@@ -1478,14 +1485,14 @@ export default function App() {
     setDraftNumber(getNextOrderNumber(nextOrders))
   }
 
-  async function saveOrder(nextStatus: OrderStatus = 'da luu') {
+  async function saveOrder(nextStatus: OrderStatus = 'da luu', options: SaveOrderOptions = {}): Promise<SavedOrder | null> {
     if (cart.length === 0) {
       setNotice(tx('Hãy chọn ít nhất 1 món', 'Select at least one item'))
-      return
+      return null
     }
     if (isReadOnlyOrder) {
       setNotice(tx('Đơn đã thanh toán, chỉ được mở lại để xem', 'Paid orders are read-only'))
-      return
+      return null
     }
     const existing = editingOrderId ? orders.find((order) => order.id === editingOrderId) : undefined
     const now = new Date().toISOString()
@@ -1508,19 +1515,23 @@ export default function App() {
         const nextOrders = editingOrderId ? orders.map((order) => order.id === editingOrderId ? remoteOrder : order) : [remoteOrder, ...orders].slice(0, 100)
         setOrders(nextOrders)
         clearDraft(nextOrders)
+        if (options.keepSavedPreview) setHistoryPreviewOrder(remoteOrder)
         if (isAdmin) void refreshApiData()
         setNotice(nextStatus === 'da thanh toan' ? `${tx('Đã Paid đơn', 'Order marked Paid')} ${remoteOrder.number}` : editingOrderId ? `${tx('Đã cập nhật đơn', 'Order updated')} ${remoteOrder.number}` : `${tx('Đã lưu đơn', 'Order saved')} ${remoteOrder.number}`)
+        return remoteOrder
       } catch (error) {
         setNotice(error instanceof Error ? error.message : tx('Không lưu được đơn', 'Could not save order'))
+        return null
       }
-      return
     }
     const nextOrders = editingOrderId ? orders.map((order) => order.id === editingOrderId ? saved : order) : [saved, ...orders].slice(0, 100)
     setOrders(nextOrders)
     const itemSummary = saved.items.map((line) => `${line.product.name} x${line.quantity}`).join(', ')
     recordAudit(nextStatus === 'da thanh toan' ? 'Paid' : existing ? 'Sua don' : 'Tao don', saved.number, `Ban ${saved.table || '--'} | ${itemSummary} | Tong ${formatCurrency(saved.total)} | Thanh toan ${saved.paymentMethod || '--'}`)
     clearDraft(nextOrders)
+    if (options.keepSavedPreview) setHistoryPreviewOrder(saved)
     setNotice(nextStatus === 'da thanh toan' ? `${tx('Đã Paid đơn', 'Order marked Paid')} ${saved.number}` : existing ? `${tx('Đã cập nhật đơn', 'Order updated')} ${saved.number}` : `${tx('Đã lưu đơn', 'Order saved')} ${saved.number}`)
+    return saved
   }
 
   function showHistoryBill(order: SavedOrder) {
@@ -1980,7 +1991,7 @@ export default function App() {
     setNotice(tx('Đã ngắt kết nối máy in USB', 'USB printer disconnected'))
   }
 
-  async function printUsb(order: SavedOrder) {
+  async function sendUsbReceipt(order: SavedOrder) {
     if (order.items.length === 0) {
       setNotice(tx('Hãy chọn ít nhất 1 món trước khi in', 'Select at least one item before printing'))
       return
@@ -1988,25 +1999,72 @@ export default function App() {
     let connection: UsbConnection | null = usbPrinter && usbEndpointNumber !== null ? { device: usbPrinter, endpointNumber: usbEndpointNumber } : null
     if (!connection) connection = await connectUsbPrinter()
     if (!connection) return
-    setIsPrinting(true)
     try {
       const result = await connection.device.transferOut(connection.endpointNumber, buildEscPosReceipt(order, settings, language))
       if (result.status !== 'ok') throw new Error(`USB transfer ${result.status}`)
       setNotice(`${tx('Đã gửi bill', 'Sent bill')} ${order.number} ${tx('tới', 'to')} ${getUsbDeviceLabel(connection.device)}`)
     } catch {
       setNotice(tx('Gửi bill không thành công. Hãy kiểm tra máy in và đóng app máy in khác trước khi thử lại.', 'Printing failed. Check the printer and close other printer apps before retrying.'))
+    }
+  }
+
+  async function printSavedUsb(order: SavedOrder) {
+    if (isPrinting) return
+    setIsPrinting(true)
+    try {
+      await sendUsbReceipt(order)
     } finally {
       setIsPrinting(false)
     }
   }
 
-  function printWithChrome(order: SavedOrder = draftOrder) {
+  async function printCurrentUsb() {
+    if (isPrinting) return
+    setIsPrinting(true)
+    try {
+      await executePersistedPrint(
+        selectedHistoryOrder,
+        () => saveOrder('da luu', { keepSavedPreview: true }),
+        sendUsbReceipt,
+      )
+    } finally {
+      setIsPrinting(false)
+    }
+  }
+
+  function openChromePrint(order: SavedOrder) {
     if (order.items.length === 0) {
       setNotice(tx('Hãy chọn ít nhất 1 món trước khi in', 'Select at least one item before printing'))
       return
     }
+    flushSync(() => setChromePrintOrder(order))
     setNotice(tx('Đang mở hộp thoại in của Chrome', 'Opening the Chrome print dialog'))
     window.print()
+    setChromePrintOrder(null)
+  }
+
+  function printSavedWithChrome(order: SavedOrder) {
+    if (isPrinting) return
+    setIsPrinting(true)
+    try {
+      openChromePrint(order)
+    } finally {
+      setIsPrinting(false)
+    }
+  }
+
+  async function printCurrentWithChrome() {
+    if (isPrinting) return
+    setIsPrinting(true)
+    try {
+      await executePersistedPrint(
+        selectedHistoryOrder,
+        () => saveOrder('da luu', { keepSavedPreview: true }),
+        openChromePrint,
+      )
+    } finally {
+      setIsPrinting(false)
+    }
   }
 
   function exportData() {
@@ -2221,9 +2279,9 @@ export default function App() {
                 <div className="payment-method-field"><span className="payment-method-label">{tx('Thanh toán', 'Payment')}</span><div className="payment-method-options">{(['TM', 'CK'] as const).map((method) => <button type="button" className={paymentMethod === method ? 'payment-method-option selected' : 'payment-method-option'} aria-pressed={paymentMethod === method} disabled={isReadOnlyOrder} key={method} onClick={() => setPaymentMethod((current) => current === method ? '' : method)}><span className="payment-check">{paymentMethod === method ? '✓' : ''}</span><strong>{method}</strong><small>{paymentMethodLabel(method, language)}</small></button>)}</div></div>
                 <label className="order-note-field"><span>{tx('Ghi chú đơn', 'Order note')}</span><textarea aria-label={tx('Ghi chú đơn', 'Order note')} disabled={isReadOnlyOrder} value={orderNote} onChange={(event) => setOrderNote(event.target.value)} placeholder={tx('Ví dụ: khách cần thêm đá...', 'Example: customer needs extra ice...')} /></label>
               </div>
-              <div className="checkout-print-actions"><button className="secondary-button print-button" disabled={isPrinting || currentPreviewOrder.items.length === 0} onClick={() => void printUsb(currentPreviewOrder)}>{isPrinting ? tx('Đang in...', 'Printing...') : tx('In bill USB', 'Print via USB')}</button><button className="secondary-button" disabled={currentPreviewOrder.items.length === 0} onClick={() => printWithChrome(currentPreviewOrder)}>{tx('In qua Chrome', 'Print via Chrome')}</button></div>
-              <div className="checkout-actions"><button className="secondary-button" onClick={() => clearDraft()}>{isReadOnlyOrder ? tx('Đóng xem', 'Close') : tx('Hủy nhập', 'Cancel')}</button>{!isReadOnlyOrder && <button className="primary-button" onClick={() => saveOrder()}>{tx('Lưu đơn', 'Save order')} <span>✓</span></button>}</div>
-              <div className="paid-action-row">{isReadOnlyOrder ? <div className="paid-banner">Paid</div> : <button className="paid-button" disabled={cart.length === 0} onClick={() => saveOrder('da thanh toan')}>Paid</button>}</div>
+              <div className="checkout-print-actions"><button className="secondary-button print-button" disabled={isPrinting || currentPreviewOrder.items.length === 0} onClick={() => void printCurrentUsb()}>{isPrinting ? tx('Đang xử lý...', 'Processing...') : selectedHistoryOrder ? tx('In bill USB', 'Print via USB') : tx('Lưu & in USB', 'Save & print USB')}</button><button className="secondary-button" disabled={isPrinting || currentPreviewOrder.items.length === 0} onClick={() => void printCurrentWithChrome()}>{isPrinting ? tx('Đang xử lý...', 'Processing...') : selectedHistoryOrder ? tx('In qua Chrome', 'Print via Chrome') : tx('Lưu & in Chrome', 'Save & print via Chrome')}</button></div>
+              <div className="checkout-actions"><button className="secondary-button" disabled={isPrinting} onClick={() => clearDraft()}>{isReadOnlyOrder ? tx('Đóng xem', 'Close') : tx('Hủy nhập', 'Cancel')}</button>{!isReadOnlyOrder && <button className="primary-button" disabled={isPrinting} onClick={() => saveOrder()}>{tx('Lưu đơn', 'Save order')} <span>✓</span></button>}</div>
+              <div className="paid-action-row">{isReadOnlyOrder ? <div className="paid-banner">Paid</div> : <button className="paid-button" disabled={isPrinting || cart.length === 0} onClick={() => saveOrder('da thanh toan')}>Paid</button>}</div>
               <div className="notice-line"><span className="notice-dot" /> {notice}</div>
             </aside>
             <section className="current-preview-row" aria-label={tx('Bill hiện tại', 'Current bill')}>
@@ -2251,7 +2309,7 @@ export default function App() {
             <section className="preview-card history-preview-card panel-card">
               <div className="card-heading"><div><div className="eyebrow"><span>02</span> {tx('XEM TRƯỚC BILL', 'BILL PREVIEW')}</div><h2>{selectedHistoryOrder ? selectedHistoryOrder.number : tx('Chọn bill để xem', 'Select a bill')}</h2></div><div className="preview-heading-tools"><ReceiptSizeControl value={settings.receiptFontSize} onChange={adjustReceiptFontSize} language={language} /><span className="mini-tag neutral">{tx('Khổ giấy 80 mm', '80 mm paper')}</span></div></div>
               <div className="preview-wrap">{selectedHistoryOrder ? <Receipt order={selectedHistoryOrder} settings={settings} language={language} /> : <div className="history-preview-empty"><div className="cart-empty-icon">▣</div><strong>{tx('Chưa chọn bill', 'No bill selected')}</strong><span>{tx('Bấm Xem bill trong danh sách bên trái để xem lại và in.', 'Click View bill in the list to review and print it.')}</span></div>}</div>
-              <div className="history-preview-actions"><button className="secondary-button print-button" disabled={!selectedHistoryOrder || isPrinting} onClick={() => selectedHistoryOrder && void printUsb(selectedHistoryOrder)}>{isPrinting ? tx('Đang in...', 'Printing...') : tx('In bill USB', 'Print via USB')}</button><button className="secondary-button" disabled={!selectedHistoryOrder} onClick={() => selectedHistoryOrder && printWithChrome(selectedHistoryOrder)}>{tx('In qua Chrome', 'Print via Chrome')}</button></div>
+              <div className="history-preview-actions"><button className="secondary-button print-button" disabled={!selectedHistoryOrder || isPrinting} onClick={() => selectedHistoryOrder && void printSavedUsb(selectedHistoryOrder)}>{isPrinting ? tx('Đang in...', 'Printing...') : tx('In bill USB', 'Print via USB')}</button><button className="secondary-button" disabled={!selectedHistoryOrder || isPrinting} onClick={() => selectedHistoryOrder && printSavedWithChrome(selectedHistoryOrder)}>{tx('In qua Chrome', 'Print via Chrome')}</button></div>
             </section>
           </div>
         </main>
@@ -2346,7 +2404,7 @@ export default function App() {
         <button className="primary-button full-button" onClick={() => setIsTaxonomyModalOpen(false)}>{tx('Đóng danh mục', 'Close')}</button>
       </div></div>}
 
-      <div className="print-only"><Receipt order={currentPreviewOrder} settings={settings} language={language} /></div>
+      <div className="print-only"><Receipt order={chromePrintOrder || currentPreviewOrder} settings={settings} language={language} /></div>
     </div>
   )
 }
