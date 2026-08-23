@@ -1,126 +1,97 @@
-[Tiếng Việt](README.md) | [English](README.en.md)
+[English](README.md) | [Tiếng Việt](README.vi.md)
 
 # Store MGMT Community Edition
 
 [![Docker smoke test](https://github.com/atgsolution/store-mgmt-community/actions/workflows/docker-smoke.yml/badge.svg)](https://github.com/atgsolution/store-mgmt-community/actions/workflows/docker-smoke.yml)
 [![License: Apache-2.0](https://img.shields.io/badge/License-Apache--2.0-blue.svg)](LICENSE)
 
-[![Xem video hướng dẫn Store MGMT Community Edition](docs/assets/screenshots/sales-overview.png)](https://github.com/atgsolution/store-mgmt-community/releases/download/v1.0.1/store-mgmt-guide.mp4)
+**Self-hosted POS and store management for small shops, cafés, and restaurants.**
 
-**[▶ Xem video hướng dẫn Store MGMT](https://github.com/atgsolution/store-mgmt-community/releases/download/v1.0.1/store-mgmt-guide.mp4)** · MP4, 6 MB
+Store MGMT Community Edition combines browser-based sales, menu and order management, revenue reporting, and 80 mm receipt printing with centralized PostgreSQL data on infrastructure you control.
 
-[Bản phát hành mới nhất](https://github.com/atgsolution/store-mgmt-community/releases/latest) · [Cài đặt](#cài-đặt-lần-đầu-trên-linux) · [Lộ trình](ROADMAP.md) · [Thảo luận](https://github.com/atgsolution/store-mgmt-community/discussions)
+![Store MGMT Community Edition product preview](docs/assets/media/product-preview.gif)
 
-**Nền tảng bán hàng và quản lý cửa hàng self-hosted.**
+**[Watch the full product video](https://github.com/atgsolution/store-mgmt-community/releases/download/v1.0.1/store-mgmt-guide.mp4)** · [Latest release](https://github.com/atgsolution/store-mgmt-community/releases/latest) · [Roadmap](ROADMAP.md) · [Discussions](https://github.com/atgsolution/store-mgmt-community/discussions)
 
-Store MGMT Community Edition là phiên bản miễn phí dành cho cộng đồng, phù hợp với cửa hàng cần quản lý bán hàng và dữ liệu tập trung trên hệ thống riêng.
+## Quick Start
 
-Nếu Store MGMT hữu ích với bạn, hãy [Star repo](https://github.com/atgsolution/store-mgmt-community) để theo dõi phiên bản mới và giúp dự án tiếp cận thêm người dùng.
-
-## Chức năng
-
-- Bán hàng trên máy tính hoặc máy tính bảng.
-- Quản lý món, loại món, nhãn, giá bán và trạng thái kinh doanh.
-- Quản lý đơn theo bàn, hình thức phục vụ, tiền cọc, giảm giá và thanh toán.
-- Phân quyền Nhân viên/Quản trị viên, khóa đơn đã thanh toán và ghi audit log.
-- Báo cáo doanh thu ngày, tháng, năm; phương thức thanh toán; món bán chạy; tiền đầu và cuối ca.
-- In bill nhiệt 80 mm ngay trên trình duyệt khi thiết bị đã kết nối và nhận máy in; hỗ trợ WebUSB ESC/POS.
-- Giao diện và bill bằng tiếng Việt hoặc tiếng Anh; dữ liệu sử dụng UTF-8.
-
-## Đặc tính hệ thống
-
-| Thuộc tính | Thiết kế |
-|---|---|
-| Phạm vi | Một cửa hàng trên mỗi bản cài đặt |
-| Nguồn dữ liệu | PostgreSQL dùng chung cho mọi phiên đăng nhập |
-| Lưu trữ | Hot database 60 ngày, archive database và cold archive |
-| Phiên đăng nhập | Tối đa 10 phiên cho mỗi tài khoản, thời hạn 7 ngày |
-| Triển khai | Docker Compose gồm frontend, API, archive worker và PostgreSQL |
-| Máy in | Hộp thoại in của trình duyệt hoặc WebUSB ESC/POS |
-
-## Giao diện
-
-| Bán hàng và quản lý đơn | Xem trước bill 80 mm |
-|---|---|
-| ![Màn hình bán hàng Store MGMT](docs/assets/screenshots/sales-overview.png) | ![Màn hình xem trước bill Store MGMT](docs/assets/screenshots/receipt-preview-live.png) |
-| Quản lý món và giá | Quản lý loại món và tag |
-| ![Màn hình quản lý món và giá Store MGMT](docs/assets/screenshots/menu-and-prices.png) | ![Màn hình quản lý loại món và tag Store MGMT](docs/assets/screenshots/categories-and-tags-live.png) |
-| Lịch sử đơn và in lại bill | Phân tích doanh thu |
-| ![Màn hình lịch sử đơn Store MGMT](docs/assets/screenshots/order-history.png) | ![Màn hình phân tích doanh thu Store MGMT](docs/assets/screenshots/revenue-analytics.png) |
-
-## Cài đặt lần đầu trên Linux
-
-Yêu cầu Docker Engine, Docker Compose v2, Git và OpenSSL.
-
-### 1. Tải mã nguồn
+Requires a Linux host with Docker Engine, Docker Compose v2, Git, and OpenSSL.
 
 ```bash
 git clone https://github.com/atgsolution/store-mgmt-community.git
 cd store-mgmt-community
-```
-
-### 2. Tạo mật khẩu lần đầu
-
-```bash
 bash scripts/setup-linux.sh
-```
-
-Script sẽ lần lượt yêu cầu mật khẩu cho hai tài khoản cố định:
-
-- `admin`: quản trị hệ thống, menu, dữ liệu và tài khoản.
-- `staff`: bán hàng, quản lý đơn và in bill.
-
-Khi nhập mật khẩu, terminal **không hiện ký tự hoặc dấu `*`**. Đây là cơ chế bảo vệ bình thường; hãy nhập mật khẩu rồi nhấn Enter. Mật khẩu phải dài ít nhất 8 ký tự, có chữ cái, chữ số, ký tự đặc biệt và không chứa khoảng trắng.
-
-Không có mật khẩu mặc định công khai. Script tạo mật khẩu database ngẫu nhiên và chỉ ghi hash scrypt của mật khẩu tài khoản vào `.env`.
-
-### 3. Khởi động ứng dụng
-
-```bash
-docker compose config --quiet
 docker compose up -d --build
-docker compose ps
 ```
 
-### 4. Đăng nhập
+Open `http://localhost:6086` on the server or `http://<server-address>:6086` from another device on the same network. The setup script prompts for `admin` and `staff` passwords, generates unique database secrets, and stores only scrypt password hashes. There are no public default passwords.
 
-Mở `http://localhost:6086` trên máy chủ hoặc `http://<địa-chỉ-máy-chủ>:6086` từ thiết bị cùng mạng.
+## Who is this for?
 
-| Vai trò | Tài khoản | Mật khẩu |
-|---|---|---|
-| Quản trị viên | `admin` | Mật khẩu Admin đã chọn ở bước 2 |
-| Nhân viên | `staff` | Mật khẩu Staff đã chọn ở bước 2 |
+- Independent shops that need a simple browser-based sales and order workflow.
+- Cafés and restaurants that use tables, dine-in or takeaway service, deposits, discounts, and 80 mm receipts.
+- Small teams that want shared operational data across computers or tablets without adopting a hosted SaaS platform.
+- Operators comfortable maintaining a Linux server, Docker deployment, backups, and HTTPS.
 
-Điểm kiểm tra trạng thái của ứng dụng là `/healthz`.
+If you require multi-store operation, regulated payment or fiscal integrations, ingredient-level inventory, or a kitchen display system, review the [current limits](#current-limits) before deploying.
 
-## Đổi mật khẩu
+## Core capabilities
 
-Chỉ tài khoản `admin` có quyền đổi mật khẩu:
+- Touch-friendly sales workflow for computers and tablets.
+- Product, category, tag, price, and availability management.
+- Table, service type, deposit, discount, payment-method, and order-note management.
+- Staff/Admin authorization, read-only paid orders, and administrative audit logs.
+- Daily, monthly, and yearly revenue; payment mix; top products; opening and closing cash.
+- 80 mm thermal receipts through the browser print dialog or direct WebUSB ESC/POS.
+- Vietnamese and English interfaces and receipts with UTF-8 application data.
+- Shared PostgreSQL data for authenticated sessions on multiple devices.
 
-1. Đăng nhập bằng `admin`.
-2. Mở tab **Người dùng**.
-3. Nhập và xác nhận mật khẩu mới trong thẻ `admin` hoặc `staff`.
-4. Chọn **Đổi mật khẩu**.
+## Product tour
 
-Khi đổi mật khẩu `staff`, mọi phiên Staff đang mở sẽ bị đăng xuất. Khi Admin đổi mật khẩu của chính mình, phiên hiện tại được giữ lại và các phiên Admin còn lại bị thu hồi.
+| Sales and order management | 80 mm receipt preview |
+|---|---|
+| ![Store MGMT sales screen](docs/assets/screenshots/sales-overview.png) | ![Store MGMT receipt preview](docs/assets/screenshots/receipt-preview-live.png) |
+| Menu and pricing | Category and tag management |
+| ![Store MGMT menu and pricing screen](docs/assets/screenshots/menu-and-prices.png) | ![Store MGMT category and tag management](docs/assets/screenshots/categories-and-tags-live.png) |
+| Order history and receipt reprinting | Revenue analytics |
+| ![Store MGMT order history screen](docs/assets/screenshots/order-history.png) | ![Store MGMT revenue analytics screen](docs/assets/screenshots/revenue-analytics.png) |
 
-## Quên mật khẩu
+## Current limits
 
-Nếu không còn đăng nhập được bằng Admin, chạy lệnh sau tại thư mục dự án trên máy chủ:
+- One store per deployment; multi-store and multi-tenant operation are not implemented.
+- No card-terminal integration or payment processing. The application records payment methods only.
+- No fiscalization, e-invoicing, or accounting integration.
+- No recipe/BOM-based inventory deduction.
+- No kitchen display system (KDS).
+
+## Deployment profile
+
+| Property | Design |
+|---|---|
+| Scope | One store per deployment |
+| Source of truth | Shared PostgreSQL data for all authenticated sessions |
+| Retention | 60-day operational database, archive database, and compressed long-term archive |
+| Sessions | Up to 10 sessions per account with a seven-day lifetime |
+| Deployment | Docker Compose with separate web, API, archive worker, and database services |
+| Printing | Browser print dialog or direct WebUSB ESC/POS |
+
+## Account operations
+
+### Change a password
+
+Sign in as `admin`, open **Users**, enter and confirm the new password for `admin` or `staff`, then select **Change password**. Changing a password revokes the account's other active sessions.
+
+If no Admin session is available, reset the account from the project directory while the containers are running:
 
 ```bash
 bash scripts/reset-password.sh admin
-```
-
-Để đặt lại mật khẩu Staff:
-
-```bash
+# or
 bash scripts/reset-password.sh staff
 ```
 
-Các container phải đang chạy. Lệnh chỉ cập nhật mật khẩu của tài khoản được chọn, thu hồi các phiên cũ và ghi audit log; không xóa đơn hàng, menu hoặc cấu hình cửa hàng.
+The reset changes only the selected account, revokes its sessions, and writes an audit entry. It does not remove orders, catalog data, or store settings.
 
-## Cập nhật
+## Upgrades
 
 ```bash
 git pull --ff-only
@@ -128,9 +99,9 @@ docker compose up -d --build --remove-orphans
 docker compose ps
 ```
 
-Việc tạo lại các dịch vụ Docker không xóa các vùng dữ liệu. Không chạy `docker compose down -v` trên hệ thống có dữ liệu cần giữ.
+Recreating containers preserves Docker data volumes. Never run `docker compose down -v` on a deployment whose data must be retained.
 
-## Sao lưu
+## Backup and restore
 
 ```bash
 docker compose exec -T hot-db \
@@ -140,26 +111,37 @@ docker compose exec -T archive-db \
   pg_dump -U store_mgmt -d store_mgmt_archive > archive-backup.sql
 ```
 
-## Bảo mật
+A complete recovery set includes both database dumps and the long-term archive volume. Treat a backup as valid only after a successful restore test; see the [data architecture](docs/database.en.md) for retention details.
 
-- Mật khẩu dùng scrypt với salt ngẫu nhiên; đổi mật khẩu sẽ thu hồi các phiên còn lại.
-- Môi trường thực tế phải dùng HTTPS reverse proxy và bật `COOKIE_SECURE=true`.
-- Quyền truy cập và quy tắc nghiệp vụ được thực thi tại API.
+## Security
 
-## Giới hạn
+- Account passwords use scrypt with random salts.
+- Production deployments should run behind an HTTPS reverse proxy with `COOKIE_SECURE=true`.
+- Authorization and business rules are enforced by the API.
+- Report security issues through the [security policy](SECURITY.md), not a public issue.
 
-Phiên bản Cộng đồng hiện phục vụ một cửa hàng trên mỗi bản cài đặt. Multi-store, multi-tenant SaaS, hóa đơn điện tử và tích hợp kế toán chưa thuộc phạm vi hiện tại.
+## Project transparency
 
-## Tài liệu
+Store MGMT Community Edition is built and maintained by the project maintainer with significant assistance from OpenAI Codex. The maintainer remains responsible for architecture, code review, testing, security decisions, and releases.
 
-- [Kiến trúc phần mềm](docs/architecture.md)
-- [Kiến trúc và vòng đời dữ liệu](docs/database.md)
-- [Kiến trúc in bill nhiệt](docs/printer-setup.md)
+## Field feedback
 
-## Cộng đồng và giấy phép
+Real deployment feedback is more useful than generic feature requests. Please use [Discussions](https://github.com/atgsolution/store-mgmt-community/discussions) for operational feedback and [Issues](https://github.com/atgsolution/store-mgmt-community/issues) for reproducible defects, especially around:
 
-- [Lộ trình phát triển](ROADMAP.md)
-- [Hướng dẫn đóng góp](CONTRIBUTING.md)
-- [Chính sách bảo mật](SECURITY.md)
-- [Quy tắc cộng đồng](CODE_OF_CONDUCT.md)
-- Phát hành theo [Apache License 2.0](LICENSE).
+- receipt-printer model, connection type, browser, and print output;
+- behavior across multiple computers or tablets using the same deployment;
+- backup and restore procedures that have been tested in practice;
+- missing sales, order, shift, or reporting workflows.
+
+Include the deployment version and environment, but never post credentials, `.env` files, or database dumps.
+
+## Documentation
+
+- [Software architecture](docs/architecture.en.md)
+- [Data architecture and lifecycle](docs/database.en.md)
+- [Thermal printing architecture](docs/printer-setup.en.md)
+- [Project roadmap](ROADMAP.md)
+- [Contributing guide](CONTRIBUTING.md)
+- [Code of conduct](CODE_OF_CONDUCT.md)
+
+Released under the [Apache License 2.0](LICENSE).
